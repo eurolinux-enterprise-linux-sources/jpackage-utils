@@ -34,7 +34,7 @@
 
 Name:           jpackage-utils
 Version:        1.7.5
-Release:        3.14%{?dist}
+Release:        3.16%{?dist}
 Epoch:          0
 Summary:        JPackage utilities
 License:        BSD
@@ -48,6 +48,8 @@ Patch0:         %{name}-enable-gcj-support.patch
 Patch1:         %{name}-own-mavendirs.patch
 # Backported from javapackages commit 494fea0
 Patch7:         %{name}-openjdk-8.patch
+# Backported from javapackges commit fa2494a
+Patch8:         %{name}-hardlink-creation.patch
 Group:          Utilities
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
@@ -69,9 +71,18 @@ information.
 %patch0 -p0
 %patch1 -p1
 %patch7 -p1
+%patch8 -p1
 rm -f java-utils/java-functions.orig
 
-cp %{SOURCE1} .
+cat %{SOURCE1}  \
+   | sed "s;%%{_bindir};%{_bindir};g"  \
+   | sed "s;%%{_datadir};%{_datadir};g" \
+   | sed "s;%%{_sysconfdir};%{_sysconfdir};g"  \
+   | sed "s;%%{_docdir};%{_docdir};g"  \
+   | sed "s;%%{name};%{name};g"  \
+   | sed "s;%%{version};%{version};g"  \
+ > `basename %{SOURCE1}`
+
 
 %build
 echo "JPackage release %{distver} (%{distribution}) for %{buildarch}" \
@@ -211,6 +222,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov 19 2019 Jiri Vanek <jvanek@redhat.com> - 0:1.7.5-3.16
+- fixed not-expanded macros in readme
+- Resolves: rhbz#1203360
+
+* Tue Nov 03 2015 Omair Majid <omajid@redhat.com> - 0:1.7.5-3.15
+- Fix hardlink creation
+- Resolves: rhbz#1220321
+
 * Fri Nov 28 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 0:1.7.5-3.14
 - Prevent patch backup file from being installed
 
