@@ -34,7 +34,7 @@
 
 Name:           jpackage-utils
 Version:        1.7.5
-Release:        3.12%{?dist}
+Release:        3.14%{?dist}
 Epoch:          0
 Summary:        JPackage utilities
 License:        BSD
@@ -46,6 +46,8 @@ Source0:        %{name}-%{version}.tar.bz2
 Source1:        %{name}-README
 Patch0:         %{name}-enable-gcj-support.patch
 Patch1:         %{name}-own-mavendirs.patch
+# Backported from javapackages commit 494fea0
+Patch7:         %{name}-openjdk-8.patch
 Group:          Utilities
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
@@ -66,6 +68,8 @@ information.
 %setup -q
 %patch0 -p0
 %patch1 -p1
+%patch7 -p1
+rm -f java-utils/java-functions.orig
 
 cp %{SOURCE1} .
 
@@ -108,11 +112,11 @@ install -dm 755 ${RPM_BUILD_ROOT}${_javadir}
 install -dm 755 ${RPM_BUILD_ROOT}${_javadir}-utils
 install -dm 755 ${RPM_BUILD_ROOT}${_javadir}-ext
 install -dm 755 ${RPM_BUILD_ROOT}${_javadir}-{1.3.1,1.4.0,1.4.1,1.4.2}
-install -dm 755 ${RPM_BUILD_ROOT}${_javadir}-{1.5.0,1.6.0,1.7.0}
+install -dm 755 ${RPM_BUILD_ROOT}${_javadir}-{1.5.0,1.6.0,1.7.0,1.8.0}
 install -dm 755 ${RPM_BUILD_ROOT}${_jnidir}
 install -dm 755 ${RPM_BUILD_ROOT}${_jnidir}-ext
 install -dm 755 ${RPM_BUILD_ROOT}${_jnidir}-{1.3.1,1.4.0,1.4.1,1.4.2}
-install -dm 755 ${RPM_BUILD_ROOT}${_jnidir}-{1.5.0,1.6.0,1.7.0}
+install -dm 755 ${RPM_BUILD_ROOT}${_jnidir}-{1.5.0,1.6.0,1.7.0,1.8.0}
 install -dm 755 ${RPM_BUILD_ROOT}${_javadocdir}
 install -dm 755 ${RPM_BUILD_ROOT}${_mavenpomdir}
 install -dm 755 ${RPM_BUILD_ROOT}${_mavendepmapfragdir}
@@ -207,6 +211,13 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Nov 28 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 0:1.7.5-3.14
+- Prevent patch backup file from being installed
+
+* Tue Oct 21 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 0:1.7.5-3.13
+- Add support for OpenJDK 8
+- Resolves: rhbz#1149605
+
 * Mon May 17 2010 Deepak Bhole <dbhole@redhat.com>  - 0:1.7.5-3.12
 - Resolve rhbz#593071: Add requirement on findutils
 
